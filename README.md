@@ -81,16 +81,20 @@ trustlab/                                    # 🏠 PROJECT ROOT
 # 🎯 STEP 1: LLM Fine-Tuning (Development Phase)
 ├── finetunning/
 │   ├── dataset/
+│   │   ├── algospeak_patterns.json (6.7KB)       # 📚 121 real patterns + 2025 research
 │   │   ├── training_dataset_colab.json (34MB)    # 🎯 52K instruction samples
-│   │   ├── notebook.ipynb (63KB)                 # 📊 Polars data preparation
+│   │   ├── notebook.ipynb (67KB)                 # 📊 Polars data preparation
 │   │   ├── train.csv (778MB)                     # 📋 Jigsaw dataset (1.8M rows)
 │   │   └── test.csv (29MB)                       # 📋 Jigsaw test data
-│   ├── qwen_2_5_3b_finetuning_colab.ipynb       # 🤖 QLoRA training (main)
-│   └── colab_finetune.ipynb                     # 🔄 Alternative training
+│   ├── qlora.ipynb                               # 🤖 QLoRA training (main Colab)
+│   ├── qlora.py                                  # 🤖 QLoRA training (Python script)
+│   ├── 1_download_adapters.py                    # ⬇️ Download trained adapters
+│   ├── 2_merge_adapters.py                       # 🔗 Merge LoRA with base model
+│   ├── 3_convert_to_gguf.py                      # 📦 Convert to GGUF format
+│   └── 4_setup_ollama.py                         # 🚀 Local Ollama deployment
 
 # 🛡️ STAGE 1: Algospeak Detection & Normalization (Production)
 ├── stage1/
-│   ├── algospeak_patterns.json             # 📚 150+ research-backed patterns
 │   ├── 1_normalizer.py                     # 🔧 Main orchestration engine
 │   ├── 2_detector.py                       # 🔍 Pattern detection algorithms
 │   ├── 3_patterns.py                       # 📖 Pattern loading & processing
@@ -241,7 +245,7 @@ curl -X POST "http://localhost:8000/moderate" \
 ### **Immediate Actions**
 1. **✅ Data Preparation**: Complete (52K training samples ready)
 2. **🔄 Fine-tuning**: Upload `finetunning/dataset/training_dataset_colab.json` to Colab
-3. **⚡ Training**: Run `qwen_2_5_3b_finetuning_colab.ipynb` (2-3 hours)
+3. **⚡ Training**: Run `qlora.ipynb` (2-3 hours)
 4. **📊 Deployment**: Merge adapters → Quantize to GGUF → Production ready
 
 ### **Demo Capabilities**
