@@ -73,7 +73,6 @@ This architectural choice makes our system **production-viable** for enterprise 
 trustlab/                                    # 🏠 PROJECT ROOT
 ├── README.md                               # 📖 This comprehensive guide
 ├── main.py                                 # 🚀 FastAPI production server (217 lines)
-├── project_flow.md                         # 📋 Detailed system flow
 ├── tune.md                                 # 🔧 Fine-tuning technical guide
 ├── pyproject.toml & uv.lock               # 📦 Python dependencies
 
@@ -81,22 +80,22 @@ trustlab/                                    # 🏠 PROJECT ROOT
 ├── normalizer.py                           # 🔧 Stage 1: Algospeak normalization (103 lines) ✅ WORKING
 ├── classifier.py                           # 🤖 Stage 2: AI classification (145 lines) ⏳ READY FOR MODEL
 
-# 🎯 STEP 1: LLM Fine-Tuning (Development Phase)
-├── finetunning/
-│   ├── dataset/
-│   │   ├── algospeak_patterns.json (6.7KB)       # 📚 146 patterns available (114 loaded) + 2025 research
-│   │   ├── training_dataset_colab.json (34MB)    # 🎯 52K instruction samples
-│   │   ├── notebook.ipynb (67KB)                 # 📊 Polars data preparation
-│   │   ├── train.csv (778MB)                     # 📋 Jigsaw dataset (1.8M rows)
-│   │   └── test.csv (29MB)                       # 📋 Jigsaw test data
-│   ├── qlora.ipynb                               # 🤖 QLoRA training (main Colab) ⏳ IN PROGRESS
-│   ├── qlora.py                                  # 🤖 QLoRA training (Python script)
-│   ├── 1_download_adapters.py                    # ⬇️ Download trained adapters
-│   ├── 2_merge_adapters.py                       # 🔗 Merge LoRA with base model
-│   ├── 3_convert_to_gguf.py                      # 📦 Convert to GGUF format
-│   └── 4_setup_ollama.py                         # 🚀 Local Ollama deployment
+# 📊 DATASET (Root Level - Moved from finetunning/)
+├── dataset/
+│   ├── algospeak_patterns.json (7.3KB)           # 📚 114+ algospeak patterns + 2025 research
+│   ├── training_dataset_colab.json (34MB)        # 🎯 52K instruction samples
+│   ├── train.csv (778MB)                         # 📋 Jigsaw dataset (1.8M rows)
+│   └── test.csv (29MB)                           # 📋 Jigsaw test data
 
-# 📦 STEP 2: Model Deployment (After Training)
+# 🎯 FINE-TUNING (Development Phase)
+├── finetunning/
+│   ├── data_prep.ipynb                           # 📊 Polars data preparation (renamed from notebook.ipynb)
+│   ├── qlora.py                                  # 🤖 QLoRA training (Python script in but for jupyer notebok cells format)
+│   └── qlora_unsloth.ipynb                       # 🤖 Unsloth QLoRA training (Jupyter notebook)
+
+# 📦 MODEL STORAGE
+├── raw_model/                              # 🎯 Local Qwen2.5-3B-Instruct (5.8GB)
+│   └── Qwen2.5-3B-Instruct/                # 📁 Essential model files only
 ├── quantized_model/                        # 🎯 Fine-tuned model storage (READY FOR MODEL)
 │   └── (qwen-algospeak model files)        # 📁 GGUF model + tokenizer (after training completes)
 ```
