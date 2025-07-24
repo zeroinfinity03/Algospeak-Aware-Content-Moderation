@@ -1,0 +1,8 @@
+# 🛡️ PRODUCTION PIPELINE: Simplified Architecture (Root Level)
+├── normalizer.py                           # 🔧 Stage 1: Algospeak normalization (103 lines)
+├── classifier.py                           # 🤖 Stage 2: AI classification (145 lines) 
+├── main.py                                 # 🚀 FastAPI server with both stages (217 lines)
+
+# 📦 STEP 2: Model Deployment (After Training)
+├── quantized_model/                        # 🎯 Fine-tuned model storage
+│   └── (qwen-algospeak model files)        # 📁 GGUF model + tokenizer (after training)

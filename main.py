@@ -1,173 +1,219 @@
 #!/usr/bin/env python3
 """
-🛡️ ALGOSPEAK-AWARE CONTENT MODERATION API
+🛡️ ALGOSPEAK CONTENT MODERATION API
 
-Main API entry point integrating both stages:
-- Stage 1: Algospeak Detection + Normalization  
-- Stage 2: Context-Aware AI Classification
+Complete API using our simple normalizer + classifier:
+- normalizer.py: algospeak → normal text
+- classifier.py: text → harmful/safe classification
 
-This is the production API that platforms integrate with.
+Usage: POST /moderate with {"text": "I want to unalive myself"}
 """
 
-import sys
-from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import uvicorn
 
-# Add both stages to Python path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root / "stage1"))
-sys.path.insert(0, str(project_root / "stage2"))
+# Import our components (now in root directory)
+from normalizer import SimpleNormalizer
+try:
+    from classifier import SimpleClassifier
+    classifier_available = True
+except ImportError as e:
+    print(f"⚠️ Classifier not available: {e}")
+    classifier_available = False
 
 app = FastAPI(
     title="🛡️ Algospeak Content Moderation API",
     description="""
-    ## Production-Ready Content Moderation with Algospeak Detection
+    ## Simple Two-Stage Content Moderation
     
-    **Two-Stage AI Pipeline:**
-    - **Stage 1**: Detects and normalizes algospeak patterns (150+ research-backed)
-    - **Stage 2**: Context-aware AI classification using fine-tuned LLM
+    **Stage 1**: Normalize algospeak (unalive → kill)
+    **Stage 2**: AI classification (kill myself → extremely_harmful)
     
-    **Key Benefits:**
-    - 23% improvement in harmful content detection
-    - Context understanding (not just keyword matching)
-    - Sub-100ms response times for real-time moderation
+    **Clean & Simple Architecture!**
     """,
-    version="2.0.0"
+    version="1.0.0"
 )
 
 class ModerationRequest(BaseModel):
     text: str
-    user_id: Optional[str] = None
 
 class ModerationResponse(BaseModel):
     original_text: str
     normalized_text: str
     algospeak_detected: bool
-    label: str
-    confidence: float
-    category: str
-    recommended_action: str
-    reasoning: str
+    classification: str
+    stage1_status: str
+    stage2_status: str
+
+# Initialize components
+print("🔧 Initializing Algospeak Moderation API...")
+normalizer = SimpleNormalizer()
+if classifier_available:
+    classifier = SimpleClassifier()
+    print("✅ Both normalizer and classifier loaded!")
+else:
+    print("⚠️ Only normalizer loaded, classifier needs Ollama")
 
 @app.get("/")
 async def root():
-    """API health check and info."""
+    """API health check."""
     return {
         "message": "🛡️ Algospeak Content Moderation API",
         "status": "active",
-        "stages": {
-            "stage1": "Algospeak Detection + Normalization",
-            "stage2": "Context-Aware AI Classification"
+        "architecture": {
+            "normalizer": "normalizer.py (103 lines)",
+            "classifier": "classifier.py (145 lines)", 
+            "api": "main.py (this file)"
         },
-        "endpoints": {
-            "/moderate": "POST - Moderate content",
-            "/demo": "GET - Demo both stages",
-            "/docs": "GET - API documentation"
+        "workflow": {
+            "1": "POST /moderate with text",
+            "2": "Normalize algospeak patterns", 
+            "3": "AI classification via Ollama",
+            "4": "Return complete results"
+        },
+        "example": {
+            "input": "I want to unalive myself",
+            "normalized": "I want to kill myself",
+            "classification": "extremely_harmful, self_harm"
         }
     }
 
 @app.post("/moderate", response_model=ModerationResponse)
 async def moderate_content(request: ModerationRequest):
     """
-    Moderate content using the complete 2-stage pipeline.
-    
-    **Stage 1**: Detects algospeak and normalizes text
-    **Stage 2**: AI classification with context awareness
+    Complete moderation pipeline: Algospeak detection + AI classification.
     """
     try:
-        # Import Stage 1 components
-        import importlib.util
+        # Stage 1: Normalize algospeak
+        print(f"📝 Input: {request.text}")
+        normalized_text = normalizer.normalize(request.text)
+        algospeak_detected = normalized_text != request.text
         
-        # Import normalizer from Stage 1
-        spec = importlib.util.spec_from_file_location("normalizer", "stage1/1_normalizer.py")
-        normalizer_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(normalizer_module)
-        
-        # Stage 1: Normalization
-        normalizer = normalizer_module.AlgospeakNormalizer()
-        norm_result = normalizer.normalize_text(request.text)
-        
-        # Demo Stage 2 classification (simplified)
-        normalized_text = norm_result.normalized_text
-        algospeak_detected = len(norm_result.matches_found) > 0
-        
-        # Simple demo classification logic
-        if any(word in normalized_text.lower() for word in ["kill myself", "suicide", "self harm"]):
-            label = "harmful"
-            category = "self_harm"
-            confidence = 0.92
-            action = "auto_block"
-            reasoning = "Contains self-harm language"
-        elif any(word in normalized_text.lower() for word in ["kill", "die", "hate"]):
-            label = "potentially_harmful"
-            category = "harassment"
-            confidence = 0.78
-            action = "flag_for_review"
-            reasoning = "Contains potentially harmful language requiring review"
+        if algospeak_detected:
+            stage1_status = "algospeak_normalized"
+            print(f"🔄 Normalized algospeak detected")
         else:
-            label = "safe"
-            category = "none"
-            confidence = 0.85
-            action = "allow"
-            reasoning = "Content appears safe"
+            stage1_status = "no_algospeak_found"
+            print(f"➡️ No algospeak patterns found")
         
-        return ModerationResponse(
+        # Stage 2: AI Classification (if available)
+        if classifier_available:
+            print(f"🤖 Running AI classification...")
+            classification_result = classifier.classify(request.text)
+            
+            if 'error' in classification_result:
+                stage2_status = "ollama_unavailable"
+                classification = f"⚠️ {classification_result['error']}"
+                print(f"❌ Classification failed: {classification_result['error']}")
+            else:
+                stage2_status = "ai_classified"
+                classification = str(classification_result.get('classification', 'Unknown'))
+                print(f"✅ AI classification completed")
+        else:
+            stage2_status = "classifier_not_loaded"
+            classification = "Classifier module not available"
+            print(f"⚠️ Classifier not available")
+        
+        result = ModerationResponse(
             original_text=request.text,
             normalized_text=normalized_text,
             algospeak_detected=algospeak_detected,
-            label=label,
-            confidence=confidence,
-            category=category,
-            recommended_action=action,
-            reasoning=reasoning
+            classification=classification,
+            stage1_status=stage1_status,
+            stage2_status=stage2_status
         )
         
+        print(f"�� Complete: {stage1_status} + {stage2_status}")
+        return result
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Moderation error: {str(e)}")
+        print(f"❌ Error in moderation pipeline: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Moderation failed: {str(e)}")
 
 @app.get("/demo")
-async def demo_pipeline():
-    """Demonstrate the complete 2-stage pipeline with examples."""
+async def demo():
+    """Demo endpoint showing normalizer working."""
+    test_cases = [
+        "I want to unalive myself",
+        "This is seggs content", 
+        "I killed it at work today",
+        "Great job on that presentation!"
+    ]
+    
+    results = []
+    for text in test_cases:
+        try:
+            normalized = normalizer.normalize(text)
+            results.append({
+                "input": text,
+                "normalized": normalized,
+                "algospeak_detected": normalized != text,
+                "status": "✅ Working"
+            })
+        except Exception as e:
+            results.append({
+                "input": text,
+                "error": str(e),
+                "status": "❌ Error"
+            })
+    
     return {
-        "message": "🚀 Two-Stage Pipeline Demo",
-        "examples": [
-            {
-                "input": "I want to unalive myself",
-                "stage1": "Detects 'unalive' → Normalizes to 'I want to kill myself'",
-                "stage2": "AI classifies as 'harmful' with high confidence",
-                "output": "auto_block"
-            },
-            {
-                "input": "I killed it at work today",
-                "stage1": "No algospeak detected → Text unchanged", 
-                "stage2": "AI understands context → classifies as 'safe'",
-                "output": "allow"
-            }
-        ],
-        "run_demos": {
-            "stage1": "python stage1/4_stage1_demo.py",
-            "stage2": "python stage2/5_stage2_demo.py"
+        "demo": "Algospeak Moderation Pipeline Demo",
+        "test_results": results,
+        "note": "AI classification requires trained model via Ollama",
+        "files": {
+            "normalizer": "normalizer.py",
+            "classifier": "classifier.py", 
+            "patterns": "finetunning/dataset/algospeak_patterns.json"
         }
     }
 
-def main():
-    """Run the production API server."""
-    print("🚀 Starting Algospeak Content Moderation API...")
-    print("📊 Stage 1: Algospeak Detection + Normalization")
-    print("🤖 Stage 2: Context-Aware AI Classification")
-    print("🌐 API Documentation: http://localhost:8000/docs")
+@app.get("/health")
+async def health_check():
+    """Detailed health check."""
+    normalizer_working = False
+    classifier_working = False
     
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+    try:
+        # Test normalizer
+        test_result = normalizer.normalize("unalive")
+        normalizer_working = test_result == "kill"
+    except Exception as e:
+        pass
+    
+    try:
+        # Test classifier (if available)
+        if classifier_available:
+            # Just check if it initializes
+            classifier_working = True
+    except Exception as e:
+        pass
+        
+    return {
+        "api": "healthy",
+        "normalizer": "✅ working" if normalizer_working else "❌ error",
+        "classifier": "✅ loaded" if classifier_working else "⚠️ unavailable", 
+        "patterns_loaded": len(getattr(normalizer, 'patterns', {})),
+        "project_structure": {
+            "normalizer.py": "103 lines",
+            "classifier.py": "145 lines",
+            "main.py": "~180 lines",
+            "total": "~428 lines (vs 2700+ before!)"
+        }
+    }
 
 if __name__ == "__main__":
-    main()
+    print("🚀 Starting Algospeak Content Moderation API...")
+    print("📋 Available endpoints:")
+    print("   GET  /       - API info & examples")
+    print("   POST /moderate - Moderate content")
+    print("   GET  /demo   - Test normalizer")
+    print("   GET  /health - System health check")
+    print("   GET  /docs  - API documentation")
+    print()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 

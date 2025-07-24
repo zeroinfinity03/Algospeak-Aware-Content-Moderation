@@ -19,7 +19,7 @@ class SimpleNormalizer:
     def __init__(self):
         """Load algospeak patterns from JSON."""
         # Load patterns from our centralized dataset location
-        patterns_file = Path(__file__).parent.parent / "finetunning/dataset/algospeak_patterns.json"
+        patterns_file = Path(__file__).parent / "finetunning/dataset/algospeak_patterns.json"
         
         with open(patterns_file, 'r') as f:
             data = json.load(f)

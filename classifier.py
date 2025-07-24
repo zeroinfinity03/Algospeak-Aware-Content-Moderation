@@ -16,8 +16,7 @@ import sys
 from pathlib import Path
 
 # Add stage1 to path for normalizer
-sys.path.append(str(Path(__file__).parent.parent / "stage1"))
-from simple_normalizer import SimpleNormalizer
+from normalizer import SimpleNormalizer
 
 class SimpleClassifier:
     """Simple AI classifier using Ollama with fine-tuned model."""
