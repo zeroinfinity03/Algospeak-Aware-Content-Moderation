@@ -1,52 +1,8 @@
-# ============================================================================
-# 📁 TrustLab Algospeak Moderation - Git Ignore
-# ============================================================================
-
-# 🚫 Large Dataset Files (Jigsaw CSV files - too big for Git)
-*.csv
-step1_finetunning/dataset/train.csv
-step1_finetunning/dataset/test.csv
-
-# 🚫 Large Training Files  
-*.json.gz
-*.jsonl
-training_dataset_*.json
-*_large.json
-
-# 🚫 Model Files (too large for Git)
-*.bin
-*.safetensors
-*.pt
-*.pth
-*.ckpt
-*.model
-*.weights
-qwen-algospeak-lora/
-*/qwen-algospeak-lora/
-**/qwen-algospeak-lora/
-
-# 🚫 GGUF Models (converted models)
-*.gguf
-*.q4_0.bin
-*.q5_1.bin
-*.q8_0.bin
-
-# 🚫 Downloaded Model Adapters
-*_adapters.zip
-qwen_algospeak_adapters.zip
-adapter_*.zip
-
-# ============================================================================
-# 🐍 Python Specific
-# ============================================================================
-
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -60,34 +16,10 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
 
 # Virtual environments
 .env
@@ -98,44 +30,37 @@ ENV/
 env.bak/
 venv.bak/
 
-# ============================================================================
-# 🤖 ML/AI Specific
-# ============================================================================
+# Model files (EXCLUDE - too large for Git)
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*_adapters.zip
+qwen-algospeak-lora/
+*/adapter_model.bin
+*/adapter_config.json
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# Weights & Biases
+# Training artifacts (EXCLUDE - generated during training)
 wandb/
 .wandb/
-
-# HuggingFace cache
-.cache/
-.huggingface/
-
-# TensorBoard logs
-logs/
-tb_logs/
-tensorboard_logs/
-
-# Training outputs
-outputs/
-checkpoints/
 runs/
-results/
+tensorboard_logs/
+checkpoints/
+logs/
 
-# ============================================================================
-# 💻 Development Environment
-# ============================================================================
+# Jupyter
+.ipynb_checkpoints/
 
-# IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -144,51 +69,15 @@ results/
 ehthumbs.db
 Thumbs.db
 
-# ============================================================================
-# 🔐 Security & API Keys  
-# ============================================================================
+# Hugging Face cache
+.huggingface/
+.cache/huggingface/
 
-# Environment variables
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Large CSV files (EXCLUDE - too big for Git)
+*.csv
+finetunning/dataset/*.csv
+train.csv
+test.csv
 
-# API Keys (just in case)
-*_api_key.txt
-*_token.txt
-secrets/
-
-# ============================================================================
-# 📝 Documentation & Temporary Files
-# ============================================================================
-
-# Temporary files
-*.tmp
-*.temp
-*.log
-*.bak
-*.backup
-
-# LaTeX generated files (if generating docs)
-*.aux
-*.fdb_latexmk
-*.fls
-*.synctex.gz
-
-# ============================================================================
-# 🎯 Project Specific
-# ============================================================================
-
-# Ollama model files (if stored locally)
-ollama_models/
-*.ollama
-
-# Fine-tuning temporary files
-temp_training/
-temp_models/
-intermediate_checkpoints/
-
-# Test outputs
-test_outputs/
-demo_results/ 
+# NOTE: JSON training data files are ALLOWED to be committed
+# CSV files are EXCLUDED due to size (train.csv ~778MB, test.csv ~29MB) 

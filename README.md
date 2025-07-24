@@ -79,7 +79,7 @@ trustlab/                                    # 🏠 PROJECT ROOT
 ├── pyproject.toml & uv.lock               # 📦 Python dependencies
 
 # 🎯 STEP 1: LLM Fine-Tuning (Development Phase)
-├── step1_finetunning/
+├── finetunning/
 │   ├── dataset/
 │   │   ├── training_dataset_colab.json (34MB)    # 🎯 52K instruction samples
 │   │   ├── notebook.ipynb (63KB)                 # 📊 Polars data preparation
@@ -240,7 +240,7 @@ curl -X POST "http://localhost:8000/moderate" \
 
 ### **Immediate Actions**
 1. **✅ Data Preparation**: Complete (52K training samples ready)
-2. **🔄 Fine-tuning**: Upload `step1_finetunning/dataset/training_dataset_colab.json` to Colab
+2. **🔄 Fine-tuning**: Upload `finetunning/dataset/training_dataset_colab.json` to Colab
 3. **⚡ Training**: Run `qwen_2_5_3b_finetuning_colab.ipynb` (2-3 hours)
 4. **📊 Deployment**: Merge adapters → Quantize to GGUF → Production ready
 
