@@ -49,7 +49,7 @@ print("\n✅ Installation complete! Ready for QLoRA training.")
 # HuggingFace Login (REQUIRED)
 from huggingface_hub import login
 login()  # You'll get a popup to enter your HF token
-# [REMOVED_TOKEN]
+# WARNING: NEVER put your actual token in code! Use the login() popup instead
 
 
 
@@ -346,9 +346,10 @@ print("\n✅ Ready for algospeak detection!")
 # Download adapters to your Mac
 from google.colab import files
 import zipfile
+import subprocess
 
 # Create zip of adapter files
-!zip -r qwen_algospeak_adapters.zip qwen-algospeak-lora/
+subprocess.run(['zip', '-r', 'qwen_algospeak_adapters.zip', 'qwen-algospeak-lora/'])
 
 # Download the zip file
 files.download('qwen_algospeak_adapters.zip')
